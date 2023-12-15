@@ -1,0 +1,33 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: ascii-movie
+  namespace: argocd
+  labels:
+    app: ascii-movie
+  # Finalizer that ensures that project is not deleted until it is not referenced by any application
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  # roles:
+  # - name: "project-admin"
+  #   policies:
+  #     - "p, proj:ascii-movie:project-admin, applications, update, ascii-movie/*, allow"
+  #     - "p, proj:ascii-movie:project-admin, applications, sync, ascii-movie/*, allow"
+  #     - "p, proj:ascii-movie:project-admin, applications, get, ascii-movie/*, allow"
+  #     - "p, proj:ascii-movie:project-admin, applications, override, ascii-movie/*, allow"
+  #     - "p, proj:ascii-movie:project-admin, repositories, get, ascii-movie/*, allow"
+  #   groups:
+  #   - res_paloalto_prodops
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  namespaceResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  destinations:
+  - namespace: "*-ascii-movie"
+    server: "*"
+  sourceRepos:
+  - "https://github.com/xadcoh/argocd.git"

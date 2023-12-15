@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cit1-ascii-movie
+  namespace: argocd
+spec:
+  project: ascii-movie
+  source:
+    repoURL: https://github.com/xadcoh/argocd.git
+    targetRevision: main
+    path: charts/0.13.0
+    helm:
+      releaseName: cit1-ascii-movie
+      valueFiles:
+        - ./cit1/values.yaml
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: cit1-ascii-movie
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false
+    retry:
+      backoff:
+        duration: 2m
+        factor: 2
+        maxDuration: 10m
+      limit: 2
+    syncOptions:
+    - CreateNamespace=true

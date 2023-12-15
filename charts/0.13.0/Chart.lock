@@ -1,0 +1,6 @@
+dependencies:
+- name: ascii-movie
+  repository: https://charts.gabe565.com
+  version: 0.13.0
+digest: sha256:c8ca944577bde047cbff706308dafae749d7355d143f49661acee5909ae4da1a
+generated: "2023-12-15T15:48:16.593780697Z"

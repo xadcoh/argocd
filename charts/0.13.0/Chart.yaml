@@ -1,0 +1,9 @@
+apiVersion: v2
+appVersion: latest
+name: ascii-movie
+type: application
+version: "1"
+dependencies:
+- name: ascii-movie
+  repository: https://charts.gabe565.com
+  version: 0.13.0
