@@ -12,7 +12,7 @@ spec:
     helm:
       releaseName: cit1-ascii-movie
       valueFiles:
-        - ./cit1/values.yaml
+        - ./environments/cit1/values.yaml
   destination:
     server: "https://kubernetes.default.svc"
     namespace: cit1-ascii-movie

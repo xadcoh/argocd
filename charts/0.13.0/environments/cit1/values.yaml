@@ -1,3 +1,17 @@
 ---
 ascii-movie:
   fullnameOverride: cit1-test-test-test
+
+  service:
+    main:
+      ports:
+        http:
+          enabled: true
+          primary: true
+        ssh:
+          enabled: false
+        telnet:
+          enabled: false
+    api:
+      enabled: false
+
