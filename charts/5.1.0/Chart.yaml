@@ -1,0 +1,9 @@
+apiVersion: v2
+appVersion: latest
+name: whoami
+type: application
+version: "1"
+dependencies:
+- name: whoami
+  repository: https://cowboysysop.github.io/charts/
+  version: 5.1.0

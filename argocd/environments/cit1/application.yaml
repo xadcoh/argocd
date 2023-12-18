@@ -1,21 +1,21 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: cit1-ascii-movie
+  name: cit1-whoami
   namespace: argocd
 spec:
-  project: ascii-movie
+  project: whoami
   source:
     repoURL: https://github.com/xadcoh/argocd.git
     targetRevision: main
-    path: charts/0.13.0
+    path: charts/5.1.0
     helm:
-      releaseName: cit1-ascii-movie
+      releaseName: cit1-whoami
       valueFiles:
         - ./environments/cit1/values.yaml
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: cit1-ascii-movie
+    namespace: cit1-whoami
   syncPolicy:
     automated:
       prune: false
