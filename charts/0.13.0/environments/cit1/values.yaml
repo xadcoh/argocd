@@ -12,6 +12,7 @@ ascii-movie:
         http:
           enabled: true
           primary: true
+          port: 80
         ssh:
           enabled: false
         telnet:
