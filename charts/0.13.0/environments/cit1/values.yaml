@@ -2,6 +2,10 @@
 ascii-movie:
   fullnameOverride: cit1-test-test-test
 
+  env:
+    ASCII_MOVIE_TELNET_ENABLED: false
+    ASCII_MOVIE_SSH_ENABLED: false
+
   service:
     main:
       ports:
