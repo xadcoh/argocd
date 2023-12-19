@@ -1,0 +1,33 @@
+{{ range $env,$val := .Values.envs}}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: "{{ $env }}-{{ $.Chart.Name }}"
+  namespace: argocd
+spec:
+  project: "{{ $.Chart.Name }}"
+  source:
+    repoURL: "{{ $val.argocd.application.repo | default $.Values.repo }}"
+    targetRevision: "{{ $val.argocd.application.targetRevision }}"
+    path: "{{ $val.argocd.application.path }}"
+    helm:
+      releaseName: "{{ $env }}-{{ $.Chart.Name }}"
+      valueFiles:
+        - "./environments/{{ $env }}/values.yaml"
+  destination:
+    server: "{{ $val.argocd.application.destination }}"
+    namespace: "{{ $env }}-{{ $.Chart.Name }}"
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false
+    retry:
+      backoff:
+        duration: 2m
+        factor: 2
+        maxDuration: 10m
+      limit: 2
+    syncOptions:
+    - CreateNamespace=true
+{{ end }}

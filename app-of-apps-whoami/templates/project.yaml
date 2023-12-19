@@ -1,0 +1,33 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: "{{ .Chart.Name }}"
+  namespace: argocd
+  labels:
+    app: "{{ .Chart.Name }}"
+  # Finalizer that ensures that project is not deleted until it is not referenced by any application
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  # roles:
+  # - name: "project-admin"
+  #   policies:
+  #     - "p, proj:{{ .Chart.Name }}:project-admin, applications, update, {{ .Chart.Name }}/*, allow"
+  #     - "p, proj:{{ .Chart.Name }}:project-admin, applications, sync, {{ .Chart.Name }}/*, allow"
+  #     - "p, proj:{{ .Chart.Name }}:project-admin, applications, get, {{ .Chart.Name }}/*, allow"
+  #     - "p, proj:{{ .Chart.Name }}:project-admin, applications, override, {{ .Chart.Name }}/*, allow"
+  #     - "p, proj:{{ .Chart.Name }}:project-admin, repositories, get, {{ .Chart.Name }}/*, allow"
+  #   groups:
+  #   - res_paloalto_prodops
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  namespaceResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  destinations:
+  - namespace: "*-{{ .Chart.Name }}"
+    server: "*"
+  sourceRepos:
+  - "{{ default .Values.repo }}"

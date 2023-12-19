@@ -1,0 +1,14 @@
+repo: https://github.com/xadcoh/argocd.git
+envs:
+  cit1:
+    argocd:
+      application:
+        targetRevision: main
+        path: "charts/5.1.0"
+        destination: "https://kubernetes.default.svc"
+  tools-test:
+    argocd:
+      application:
+        targetRevision: main
+        path: "charts/5.0.0"
+        destination: "https://kubernetes.default.svc"

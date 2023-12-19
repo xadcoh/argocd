@@ -1,0 +1,113 @@
+stages:
+  - validate project
+  - deploy project
+  - validate app
+  - deploy app
+  - tools-test
+  - tools
+  - cit1
+  - uat1
+  - live1
+
+helm:lint:template:
+  stage: test
+  image: alpine/helm:3.10.2
+  script:
+    - find . -name 'Chart.yaml' -exec dirname "{}" \; | xargs -n1 helm dependency update
+    - find . -name 'Chart.yaml' -exec dirname "{}" \; | xargs -n1 helm lint
+    - |
+      for CHART_PATH in $(find . -name 'Chart.yaml' -exec dirname "{}" \;);do
+        for ENVIRONMENT_VALUES in $(find "${CHART_PATH}" -name 'values.yaml' -or -name 'values.yml');do
+          helm template "${CHART_PATH}" --dependency-update -f ${ENVIRONMENT_VALUES}
+        done
+      done
+
+# argocd cli
+# .argocd:
+#   # we can use alpine and download argocd binary via
+#   # curl -sSL -o /usr/local/bin/argocd https://${ARGOCD_SERVER}/download/argocd-linux-amd64
+#   image: argoproj/argocd:v2.5.22
+#   variables:
+#     ARGOCD_SERVER: <server from gitlab variables>
+#     ARGOCD_AUTH_TOKEN: <token from Gitlab variables>
+
+# # should we use argocd cli or kubectl and manifest?
+# .argocd:app:create:
+#   extends: [".argocd"]
+#   script:
+#     - echo "check if app with this name already exists in argo"
+#     - echo "check if app is from this repo (use application.yaml?)"
+#     - if not we should setup manual job that will create app
+
+# .argocd:project:create:
+#   extends: [".argocd"]
+#   script:
+#     - echo "check if project with this name already exists in argo"
+#     - echo "check if project is from this repo (use project.yaml?)"
+#     - if not we should setup manual job that will create project
+#     - argocd create app project (should validate and fail without --appsert)
+
+.kubectl:
+  image: alpine/k8s:1.23
+  before_script:
+    - kubectl config use-context "${ENVIRONMENT}"
+
+project:validate:
+  extends: [".kubectl"]
+  stage: project validate
+  variables:
+    ENVIRONMENT: tools
+  script:
+    - echo "validate if project exists"
+    - kubectl get -f argocd/project.yaml
+    - echo "render diff"
+    - kubectl diff -f argocd/project.yaml
+  rules:
+    - allow_failure: true
+
+project:create-update:
+  extends: [".kubectl"]
+  stage: project create
+  variables:
+    ENVIRONMENT: tools
+  script:
+    - echo "create/update project if project:validate stage failed?"
+    - kubectl apply -f argocd/project.yaml
+  needs:
+    - "project:validate"
+  rules:
+    - when: on_failure
+    - when: manual
+
+# could be dynamic pipeline (rendered depending on envs)
+.app:validate:
+  extends: [".kubectl"]
+  script:
+    - echo "validate if application exists"
+    - kubectl get -f argocd/environments/${ENVIRONMENT}/application.yaml
+    - echo "render diff"
+    - kubectl diff -f argocd/environments/${ENVIRONMENT}/application.yaml
+  rules:
+    - allow_failure: true
+
+.app:create-update:
+  extends: [".kubectl"]
+  script:
+    - kubectl apply -f argocd/environments/${ENVIRONMENT}/application.yaml
+  rules:
+    - when: on_failure
+    - when: manual
+
+app:validate:cit1:
+  extends: [".app:validate"]
+  stage: cit1
+  variables:
+    ENVIRONMENT: cit1
+
+app:create-update:cit1:
+  extends: [".app:create-update"]
+  stage: cit1
+  variables:
+    ENVIRONMENT: cit1
+  needs:
+    - "app:validate:cit1"
